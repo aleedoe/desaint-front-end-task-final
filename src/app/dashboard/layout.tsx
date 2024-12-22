@@ -1,4 +1,7 @@
-import { AppSidebar } from "@/components/app-sidebar"
+"use client";
+
+import { usePathname } from "next/navigation";
+import { AppSidebar } from "@/components/app-sidebar";
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -6,15 +9,48 @@ import {
     BreadcrumbList,
     BreadcrumbPage,
     BreadcrumbSeparator,
-} from "@/components/ui/breadcrumb"
-import { Separator } from "@/components/ui/separator"
+} from "@/components/ui/breadcrumb";
+import { Separator } from "@/components/ui/separator";
 import {
     SidebarInset,
     SidebarProvider,
     SidebarTrigger,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
 
-export default function Layout({ children }: { children: React.ReactNode }) {
+// Tipe untuk data breadcrumb
+type BreadcrumbMap = Record<string, { label: string; path?: string }[]>;
+
+// Data untuk breadcrumb
+const breadcrumbData: BreadcrumbMap = {
+    "/dashboard": [{ label: "Home", path: "/dashboard" }],
+    "/dashboard/residentVerify": [
+        { label: "Home", path: "/dashboard" },
+        { label: "Penduduk", path: "/dashboard/residentVerify" },
+    ],
+    "/dashboard/migrateVerify": [
+        { label: "Home", path: "/dashboard" },
+        { label: "Perpindahan", path: "/dashboard/migrateVerify" },
+    ],
+    "/dashboard/resident": [
+        { label: "Home", path: "/dashboard" },
+        { label: "Penduduk", path: "/dashboard/resident" },
+    ],
+    "/dashboard/migrate": [
+        { label: "Home", path: "/dashboard" },
+        { label: "Perpindahan", path: "/dashboard/migrate" },
+    ],
+};
+
+interface LayoutProps {
+    children: React.ReactNode;
+}
+
+export default function Layout({ children }: LayoutProps) {
+    const pathname = usePathname();
+    const breadcrumbItems = breadcrumbData[pathname] || [
+        { label: "Home", path: "/" },
+    ];
+
     return (
         <SidebarProvider>
             <AppSidebar />
@@ -24,20 +60,29 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                     <Separator orientation="vertical" className="mr-2 h-4" />
                     <Breadcrumb>
                         <BreadcrumbList>
-                            <BreadcrumbItem className="hidden md:block">
-                                <BreadcrumbLink href="#">
-                                    Building Your Application
-                                </BreadcrumbLink>
-                            </BreadcrumbItem>
-                            <BreadcrumbSeparator className="hidden md:block" />
-                            <BreadcrumbItem>
-                                <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-                            </BreadcrumbItem>
+                            {breadcrumbItems.map((item, index) => (
+                                <BreadcrumbItem key={item.label}>
+                                    {index < breadcrumbItems.length - 1 ? (
+                                        <>
+                                            <BreadcrumbLink
+                                                href={item.path || "#"}
+                                            >
+                                                {item.label}
+                                            </BreadcrumbLink>
+                                            <BreadcrumbSeparator />
+                                        </>
+                                    ) : (
+                                        <BreadcrumbPage>
+                                            {item.label}
+                                        </BreadcrumbPage>
+                                    )}
+                                </BreadcrumbItem>
+                            ))}
                         </BreadcrumbList>
                     </Breadcrumb>
                 </header>
                 {children}
             </SidebarInset>
         </SidebarProvider>
-    )
+    );
 }
