@@ -1,8 +1,6 @@
-"use client"
+"use client";
 
 import React from 'react';
-import { useQuery } from '@tanstack/react-query';
-import axiosInstance from '@/lib/axios';
 import {
     Table,
     TableBody,
@@ -26,17 +24,13 @@ interface Penduduk {
     statusVerifikasi: string;
 }
 
-const fetchPenduduk = async (): Promise<Penduduk[]> => {
-    const response = await axiosInstance.get('/penduduk');
-    return response.data;
-};
+interface MainTableProps {
+    data: Penduduk[] | undefined;
+    isLoading: boolean;
+    error: Error | null;
+}
 
-const MainTable = () => {
-    const { data, error, isLoading } = useQuery<Penduduk[], Error>({
-        queryKey: ['penduduk'],
-        queryFn: fetchPenduduk,
-    });
-
+const MainTable: React.FC<MainTableProps> = ({ data, isLoading, error }) => {
     if (isLoading) return <div>Loading...</div>;
     if (error) return <div>Error: {error.message}</div>;
 
