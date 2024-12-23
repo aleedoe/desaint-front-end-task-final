@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,10 +7,42 @@ datasource db {
   url      = "file:./penduduk.db"
 }
 
-
 model Testing {
   id        Int      @id @default(autoincrement())
   name      String
   email     String   @unique
   createdAt DateTime @default(now())
+}
+
+model Penduduk {
+  nik                 String    @id @unique
+  nama                String
+  tempatLahir         String
+  tanggalLahir        DateTime
+  jenisKelamin        String
+  alamat              String?
+  statusPekerjaan     String?
+  statusPernikahan    String?
+  agama               String
+  nomorTelepon        String?
+  pendidikanTerakhir  String?
+  tanggalRegistrasi   DateTime  @default(now()) 
+  statusVerifikasi    String    @default("Pending") // Pending, Diterima, Ditolak
+  catatanPetugas      String?   // Jika ada penolakan, alasan dimasukkan di sini
+
+  // Relasi ke PerpindahanPenduduk
+  perpindahan         PerpindahanPenduduk[]
+}
+
+model PerpindahanPenduduk {
+  id                  Int       @id @default(autoincrement())
+  nik                 String    // NIK sebagai foreign key
+  alamatTujuan        String
+  alasanPindah        String
+  tanggalPermohonan   DateTime @default(now()) 
+  statusPermohonan    String   @default("Pending") // Pending, Diterima, Ditolak
+  catatanPetugas      String?   // Alasan jika ditolak
+  
+  // Relasi ke Penduduk untuk validasi data
+  penduduk            Penduduk  @relation(fields: [nik], references: [nik])
 }
